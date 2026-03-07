@@ -59,5 +59,42 @@ export const makeBookRepository = (
         }
     };
 
-    return { build, readByBookId, readByBookIds, readByTranslationId };
+    const upsert = async (record: IBookRecord | IBookRecord[]): Promise<null> => {
+        try {
+            const records = Array.isArray(record) ? record : [record];
+            await Promise.all(
+                records.map(r => 
+                    db().books.upsert({
+                        where: { id: r.id },
+                        update: { title: r.title, number: r.number },
+                        create: { id: r.id, translationId: r.translationId, title: r.title, number: r.number }
+                    })
+                )
+            );
+            return null;
+        } catch (e: unknown) {
+            if (e instanceof AppError) throw e;
+            throw new DatabaseError('Failed to fetch books', { cause: e });
+        }
+    };
+
+    const remove = async (id: BookId | BookId[]): Promise<null> => {
+        try {
+            if(Array.isArray(id)) {
+                await db().books.deleteMany({
+                    where: { id: { in: id } }
+                });
+            } else {
+                await db().books.delete({
+                    where: { id }
+                });
+            }
+            return null;
+        } catch (e: unknown) {
+            if (e instanceof AppError) throw e;
+            throw new DatabaseError('Failed to fetch books', { cause: e });
+        }
+    }
+
+    return { build, readByBookId, readByBookIds, readByTranslationId, upsert, remove };
 }

@@ -70,5 +70,42 @@ export const makeTranslationRepository = (
     }
   };
 
-  return { build, readAll, readByTranslationIds, readByTranslationId };
+  const upsert = async (record: ITranslationRecord | ITranslationRecord[]): Promise<null> => {
+    try {
+      const records = Array.isArray(record) ? record : [record];
+            await Promise.all(
+                records.map(r => 
+                    db().translations.upsert({
+                        where: { id: r.id },
+                        update: { abbreviation: r.abbreviation, name: r.name, method: r.method, language: r.language, year: r.year },
+                        create: { id: r.id, abbreviation: r.abbreviation, name: r.name, method: r.method, language: r.language, year: r.year },
+                    })
+                )
+            );
+      return null;
+    } catch (e: unknown) {
+      if (e instanceof AppError) throw e;
+      throw new DatabaseError('Failed to upsert translation', { cause: e });
+    }
+  };
+
+  const remove = async (id: TranslationId | TranslationId[]): Promise<null> => {
+    try {
+        if(Array.isArray(id)) {
+            await db().translations.deleteMany({
+                where: { id: { in: id } }
+            });
+        } else {
+            await db().translations.delete({
+                where: { id }
+            });
+        }
+        return null;
+    } catch (e: unknown) {
+        if (e instanceof AppError) throw e;
+        throw new DatabaseError('Failed to delete translation', { cause: e });
+    }
+  }
+
+  return { build, readAll, readByTranslationIds, readByTranslationId, upsert, remove };
 };
