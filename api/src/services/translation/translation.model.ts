@@ -1,4 +1,4 @@
-import { ITranslationRecord } from "../../repositories/translation/translation.interface.js";
+import { ITranslationRecord } from "../../repositories/translations/translation.model.js";
 import { TranslationId } from "../../types/branded-types.js";
 
 export interface ITranslationEntity {

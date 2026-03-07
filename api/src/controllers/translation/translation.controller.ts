@@ -1,10 +1,10 @@
 // src/controllers/verse.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { TranslationService } from '../../services/translation/translation.service.js';
 import { toTranslationViewModel } from './translation.model.js';
 import { asTranslationId } from '../../types/branded-types.js';
+import { ITranslationService } from '../../services/translation/translation.interface.js';
 
-export const makeTranslationController = (translationService: TranslationService) => ({
+export const makeTranslationController = (translationService: ITranslationService) => ({
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const translations = await translationService.getAll();
@@ -26,4 +26,4 @@ export const makeTranslationController = (translationService: TranslationService
   }
 });
 
-export type VerseController = ReturnType<typeof makeTranslationController>;
+export type TranslationController = ReturnType<typeof makeTranslationController>;

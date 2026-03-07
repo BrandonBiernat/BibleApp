@@ -1,14 +1,11 @@
 import { translations } from "../../src/generated/prisma/client.js";
 import { asTranslationId, TranslationId } from "../../types/branded-types.js";
 
-export interface ITranslationRepository {
-    getAll(): Promise<ITranslationRecord[]>;
-    getTranslations(ids: TranslationId[]): Promise<ITranslationRecord[]>;
-    getTranslation(id: TranslationId): Promise<ITranslationRecord>;
+export interface ITranslationRecord extends ITranslationRecordProps {
+    id: TranslationId;
 }
 
-export interface ITranslationRecord {
-    id: TranslationId;
+export interface ITranslationRecordProps {
     abbreviation: string;
     name: string;
     method: string;
