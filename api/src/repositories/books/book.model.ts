@@ -1,4 +1,4 @@
-import { books } from "../../src/generated/prisma/client.js";
+import { books } from "@prisma/client";
 import { asBookId, asTranslationId, BookId, TranslationId } from "../../types/branded-types.js";
 
 export interface IBookRecord extends IBookRecordProps {

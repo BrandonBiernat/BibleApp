@@ -1,11 +1,11 @@
+import { PrismaClient } from "@prisma/client";
 import { AppError, DatabaseError, NotFoundError } from "../../errors/AppError.js";
-import { PrismaClient } from "../../src/generated/prisma/client.js";
 import { asTranslationId, TranslationId } from "../../types/branded-types.js";
 import { ITranslationRepository } from "./translation.interface.js";
 import { ITranslationRecord, ITranslationRecordProps, toTranslationRecord } from "./translation.model.js";
 
 export const makeTranslationRepository = (
-    db: () => PrismaClient
+    db: PrismaClient
 ): ITranslationRepository => {
   const build = (fn: (props: ITranslationRecordProps) => void): ITranslationRecord => {
     const id = asTranslationId(crypto.randomUUID().toString());
@@ -22,7 +22,7 @@ export const makeTranslationRepository = (
 
   const readAll = async (): Promise<ITranslationRecord[]> => {
     try {
-      const translations = await db().translations.findMany();
+      const translations = await db.translations.findMany();
 
       if (!translations.length) {
         throw new NotFoundError('Translations');
@@ -38,7 +38,7 @@ export const makeTranslationRepository = (
 
   const readByTranslationIds = async (ids: TranslationId[]): Promise<ITranslationRecord[]> => {
     try {
-      const translations = await db().translations.findMany({
+      const translations = await db.translations.findMany({
         where: { id: { in: ids as string[] } }
       });
 
@@ -55,7 +55,7 @@ export const makeTranslationRepository = (
 
   const readByTranslationId = async (id: TranslationId): Promise<ITranslationRecord> => {
     try {
-      const translation = await db().translations.findUnique({
+      const translation = await db.translations.findUnique({
         where: { id: id as string }
       });
 
@@ -75,7 +75,7 @@ export const makeTranslationRepository = (
       const records = Array.isArray(record) ? record : [record];
             await Promise.all(
                 records.map(r => 
-                    db().translations.upsert({
+                    db.translations.upsert({
                         where: { id: r.id },
                         update: { abbreviation: r.abbreviation, name: r.name, method: r.method, language: r.language, year: r.year },
                         create: { id: r.id, abbreviation: r.abbreviation, name: r.name, method: r.method, language: r.language, year: r.year },
@@ -92,11 +92,11 @@ export const makeTranslationRepository = (
   const remove = async (id: TranslationId | TranslationId[]): Promise<null> => {
     try {
         if(Array.isArray(id)) {
-            await db().translations.deleteMany({
+            await db.translations.deleteMany({
                 where: { id: { in: id } }
             });
         } else {
-            await db().translations.delete({
+            await db.translations.delete({
                 where: { id }
             });
         }

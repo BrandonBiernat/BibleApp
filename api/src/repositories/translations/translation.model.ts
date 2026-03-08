@@ -1,4 +1,4 @@
-import { translations } from "../../src/generated/prisma/client.js";
+import { translations } from "@prisma/client";
 import { asTranslationId, TranslationId } from "../../types/branded-types.js";
 
 export interface ITranslationRecord extends ITranslationRecordProps {

@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client/scripts/default-index.js";
+import { PrismaClient } from "@prisma/client";
 import { AppError, DatabaseError } from "../../errors/AppError.js";
 import { asChapterId, BookId, ChapterId } from "../../types/branded-types.js";
 import { IChapterRepository } from "./chapter.interface.js";
 import { IChapterRecord, IChapterRecordProps, toChapterRecord } from "./chapter.model.js";
 
 export const makeChapterRepository = (
-    db: () => PrismaClient
+    db: PrismaClient
 ): IChapterRepository => {
     const build = (
         bookId: BookId,
@@ -23,7 +23,7 @@ export const makeChapterRepository = (
     const readByChapterId = async (id: ChapterId) => {
         try {
             const row = await 
-                db().chapters.findUniqueOrThrow({
+                db.chapters.findUniqueOrThrow({
                     where: { id } 
                 });
             return toChapterRecord(row);
@@ -36,7 +36,7 @@ export const makeChapterRepository = (
     const readByChapterIds = async (ids: ChapterId[]): Promise<IChapterRecord[]> => {
         try {
             const rows = await 
-                db().chapters.findMany({
+                db.chapters.findMany({
                     where: { id: { in: ids } } 
                 });
             return rows.map(toChapterRecord);
@@ -50,7 +50,7 @@ export const makeChapterRepository = (
     const readByBookId = async (id: BookId): Promise<IChapterRecord[]> => {
         try {
             const rows = await 
-                db().chapters.findMany({ 
+                db.chapters.findMany({ 
                     where: { bookId: id } 
                 });
             return rows.map(toChapterRecord);
@@ -63,7 +63,7 @@ export const makeChapterRepository = (
     const readByBookIds = async (ids: BookId[]): Promise<IChapterRecord[]> => {
         try {
             const rows = await 
-                db().chapters.findMany({
+                db.chapters.findMany({
                     where: { bookId: { in: ids } } 
                 });
             return rows.map(toChapterRecord);
@@ -78,7 +78,7 @@ export const makeChapterRepository = (
             const records = Array.isArray(record) ? record : [record];
             await Promise.all(
                 records.map(r => 
-                    db().chapters.upsert({
+                    db.chapters.upsert({
                         where: { id: r.id },
                         update: { title: r.title, number: r.number },
                         create: { id: r.id, title: r.title, number: r.number, bookId: r.bookId },
@@ -95,11 +95,11 @@ export const makeChapterRepository = (
     const remove = async (id: ChapterId | ChapterId[]): Promise<null> => {
         try {
             if(Array.isArray(id)) {
-                await db().chapters.deleteMany({
+                await db.chapters.deleteMany({
                     where: { id: { in: id } }
                 });
             } else {
-                await db().chapters.delete({
+                await db.chapters.delete({
                     where: { id }
                 });
             }

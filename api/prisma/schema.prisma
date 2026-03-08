@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -28,4 +28,12 @@ model chapters {
   bookId String @db.Uuid
   title  String
   number Int
+}
+
+model verses {
+  id          String @id @default(uuid()) @db.Uuid
+  chapterId   String @db.Uuid
+  type        String
+  number      Int
+  headingText String
 }

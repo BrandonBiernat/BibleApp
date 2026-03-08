@@ -1,11 +1,11 @@
+import { PrismaClient } from "@prisma/client";
 import { AppError, DatabaseError } from "../../errors/AppError.js";
-import { PrismaClient } from "../../src/generated/prisma/client.js";
 import { asBookId, BookId, TranslationId } from "../../types/branded-types.js";
 import { IBookRepository } from "./book.interface.js";
 import { IBookRecord, IBookRecordProps, toBookRecord } from "./book.model.js";
 
 export const makeBookRepository = (
-    db: () => PrismaClient
+    db: PrismaClient
 ): IBookRepository => {
     const build = (
         translationId: TranslationId,  
@@ -23,7 +23,7 @@ export const makeBookRepository = (
     const readByBookId = async (id: BookId): Promise<IBookRecord> => {
         try {
             const book = await
-                db().books.findFirstOrThrow({
+                db.books.findFirstOrThrow({
                     where: { id }
                 });
             return toBookRecord(book);
@@ -36,7 +36,7 @@ export const makeBookRepository = (
     const readByBookIds = async (ids: BookId[]): Promise<IBookRecord[]> => {
         try {
             const books = await
-                db().books.findMany({
+                db.books.findMany({
                     where: { id: { in: ids } }
                 });
             return books.map(toBookRecord);
@@ -49,7 +49,7 @@ export const makeBookRepository = (
     const readByTranslationId = async (translationId: TranslationId): Promise<IBookRecord[]> => {
         try {
             const books = await
-                db().books.findMany({
+                db.books.findMany({
                     where: { translationId }
                 });
             return books.map(toBookRecord);
@@ -64,7 +64,7 @@ export const makeBookRepository = (
             const records = Array.isArray(record) ? record : [record];
             await Promise.all(
                 records.map(r => 
-                    db().books.upsert({
+                    db.books.upsert({
                         where: { id: r.id },
                         update: { title: r.title, number: r.number },
                         create: { id: r.id, translationId: r.translationId, title: r.title, number: r.number }
@@ -74,25 +74,25 @@ export const makeBookRepository = (
             return null;
         } catch (e: unknown) {
             if (e instanceof AppError) throw e;
-            throw new DatabaseError('Failed to fetch books', { cause: e });
+            throw new DatabaseError('Failed to upsert books', { cause: e });
         }
     };
 
     const remove = async (id: BookId | BookId[]): Promise<null> => {
         try {
             if(Array.isArray(id)) {
-                await db().books.deleteMany({
+                await db.books.deleteMany({
                     where: { id: { in: id } }
                 });
             } else {
-                await db().books.delete({
+                await db.books.delete({
                     where: { id }
                 });
             }
             return null;
         } catch (e: unknown) {
             if (e instanceof AppError) throw e;
-            throw new DatabaseError('Failed to fetch books', { cause: e });
+            throw new DatabaseError('Failed to delete books', { cause: e });
         }
     }
 

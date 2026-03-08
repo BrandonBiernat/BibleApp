@@ -1,5 +1,5 @@
+import { chapters } from "@prisma/client";
 import { asBookId, asChapterId, BookId, ChapterId } from "../../types/branded-types.js";
-import { chapters } from "../../src/generated/prisma/client.js";
 
 export interface IChapterRecord extends IChapterRecordProps {
     id: ChapterId;

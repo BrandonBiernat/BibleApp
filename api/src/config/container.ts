@@ -1,20 +1,11 @@
 import { makeTranslationController } from "../controllers/translation/translation.controller.js";
-import { makeBookRepository } from "../repositories/books/book.implementation.js";
-import { makeChapterRepository } from "../repositories/chapters/chapter.implementation.js";
-import { makeTranslationRepository } from "../repositories/translations/translation.implementation.js";
-import { makeTranslationService } from "../services/translation/translation.service.js";
-import { getDb } from "./db.js";
+import { makeRepositoryInjector } from "../dependencyInjectors/repositories/index.js";
+import { makeServicesInjector } from "../dependencyInjectors/services/services.injector.js";
 
-// --- Repositories ---
-const translationRepo = makeTranslationRepository(getDb);
-const bookRepo = makeBookRepository(getDb);
-const chapterRepo = makeChapterRepository(getDb);
+const repositoryInjector = makeRepositoryInjector();
+const servicesInjector = makeServicesInjector(repositoryInjector);
 
-// --- Services ---
-const translationService = makeTranslationService(translationRepo);
-
-// --- Controllers ---
-const translationController = makeTranslationController(translationService);
+const translationController = makeTranslationController(servicesInjector);
 
 export const container = {
     translationController
